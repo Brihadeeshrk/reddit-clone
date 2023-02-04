@@ -2,6 +2,9 @@ import { Button, Flex, Input, Text } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useSetRecoilState } from "recoil";
 import { authModalState } from "../../../atoms/authModalAtom";
+import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { auth } from "@/src/firebase/clientApp";
+import { FIREBASE_ERRORS } from "@/src/firebase/errors";
 
 type LoginProps = {};
 
@@ -11,8 +14,12 @@ const Login: React.FC<LoginProps> = () => {
     password: "",
   });
   const setAuthModalState = useSetRecoilState(authModalState);
-
-  const onSubmit = () => {};
+  const [signInWithEmailAndPassword, user, loading, userError] =
+    useSignInWithEmailAndPassword(auth);
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    signInWithEmailAndPassword(loginForm.email, loginForm.password);
+  };
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setLoginForm((prev) => ({
@@ -67,9 +74,44 @@ const Login: React.FC<LoginProps> = () => {
         }}
         bg="gray.50"
       />
-      <Button width="100%" type="submit" height="36px" mt={2} mb={2}>
+      <Button
+        width="100%"
+        type="submit"
+        height="36px"
+        mt={2}
+        mb={2}
+        isLoading={loading}
+      >
         Log In
       </Button>
+      {userError && (
+        <Text
+          color="red.500"
+          fontWeight="600"
+          fontSize="9pt"
+          textAlign="center"
+          mb={3}
+        >
+          {" "}
+          {FIREBASE_ERRORS[userError.message as keyof typeof FIREBASE_ERRORS]}
+        </Text>
+      )}
+      <Flex fontSize="9pt" justifyContent="center">
+        <Text mr={2}>Forgot Password?</Text>
+        <Text
+          color="blue.500"
+          fontWeight="700"
+          cursor="pointer"
+          onClick={() => {
+            setAuthModalState((prev) => ({
+              ...prev,
+              view: "resetPassword",
+            }));
+          }}
+        >
+          RESET
+        </Text>
+      </Flex>
       <Flex fontSize="9pt" justifyContent="center">
         <Text mr={2}>New Here? </Text>
         <Text
