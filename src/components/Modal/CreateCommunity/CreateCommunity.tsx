@@ -16,7 +16,13 @@ import {
   Flex,
   Icon,
 } from "@chakra-ui/react";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  runTransaction,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 import React, { useState } from "react";
 import { BsFillEyeFill, BsFillPersonFill } from "react-icons/bs";
 import { HiLockClosed } from "react-icons/hi";
@@ -63,17 +69,27 @@ const CreateCommunity: React.FC<CreateCommunityProps> = ({
 
     try {
       const commDocRef = doc(firestore, "communities", commName);
-      const commDoc = await getDoc(commDocRef);
 
-      if (commDoc.exists()) {
-        throw new Error(`Sorry, r/${commName} is taken. Try another.`);
-      }
+      await runTransaction(firestore, async (transaction) => {
+        const commDoc = await transaction.get(commDocRef);
+        if (commDoc.exists()) {
+          throw new Error(`Sorry, r/${commName} is taken. Try another.`);
+        }
 
-      await setDoc(commDocRef, {
-        creatorID: user?.uid,
-        createdAt: serverTimestamp(),
-        numberOfMembers: 1,
-        privacyType: commType,
+        transaction.set(commDocRef, {
+          creatorID: user?.uid,
+          createdAt: serverTimestamp(),
+          numberOfMembers: 1,
+          privacyType: commType,
+        });
+
+        transaction.set(
+          doc(firestore, `users/${user?.uid}/communitySnippets`, commName),
+          {
+            communityId: commName,
+            isModerator: true,
+          }
+        );
       });
     } catch (error: any) {
       console.log("handleCreateComm Error", error);
