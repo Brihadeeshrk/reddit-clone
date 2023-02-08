@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import {
   Community,
   CommunitySnippet,
@@ -14,10 +14,12 @@ import {
   increment,
   writeBatch,
 } from "firebase/firestore";
+import { authModalState } from "../atoms/authModalAtom";
 
 const useCommunityData = () => {
   const [communityStateValue, setCommunityStateValue] =
     useRecoilState(communityState);
+  const setModalState = useSetRecoilState(authModalState);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [user] = useAuthState(auth);
@@ -34,7 +36,6 @@ const useCommunityData = () => {
         mySnippets: snippets as Array<CommunitySnippet>,
       }));
     } catch (error: any) {
-      console.log("getMySnippets Error", error);
       setError(error.message);
     }
     setLoading(false);
@@ -44,6 +45,10 @@ const useCommunityData = () => {
     communityData: Community,
     isJoined: boolean
   ) => {
+    if (!user) {
+      setModalState({ open: true, view: "login" });
+      return;
+    }
     if (isJoined) {
       leaveCommunity(communityData.id);
       return;
