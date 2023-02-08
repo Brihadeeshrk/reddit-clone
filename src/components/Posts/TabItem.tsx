@@ -6,11 +6,18 @@ type TabItemProps = {
   item: TabItem;
   selected: boolean;
   setSelected: (value: string) => void;
+  key: number;
 };
 
-const TabItem: React.FC<TabItemProps> = ({ item, selected, setSelected }) => {
+const TabItem: React.FC<TabItemProps> = ({
+  item,
+  selected,
+  setSelected,
+  key,
+}) => {
   return (
     <Flex
+      key={key}
       justify="center"
       align="center"
       flexGrow={1}
