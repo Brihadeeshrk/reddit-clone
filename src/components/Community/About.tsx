@@ -1,21 +1,28 @@
-import { Community } from "@/src/atoms/communitiesAtom";
+import { Community, communityState } from "@/src/atoms/communitiesAtom";
 import {
   Box,
   Button,
   Divider,
   Flex,
   Icon,
+  Image,
+  Spinner,
   Stack,
   Text,
 } from "@chakra-ui/react";
 import moment from "moment";
 import Link from "next/link";
-import React from "react";
+import React, { useRef, useState } from "react";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { RiCakeLine } from "react-icons/ri";
 import { useRouter } from "next/router";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/src/firebase/clientApp";
+import { auth, firestore, storage } from "@/src/firebase/clientApp";
+import useSelectFile from "../../hooks/useSelectFile";
+import { FaReddit } from "react-icons/fa";
+import { ref, uploadString, getDownloadURL } from "firebase/storage";
+import { doc, updateDoc } from "firebase/firestore";
+import { useSetRecoilState } from "recoil";
 
 type AboutProps = {
   communityData: Community;
@@ -24,6 +31,40 @@ type AboutProps = {
 const About: React.FC<AboutProps> = ({ communityData }) => {
   const router = useRouter();
   const [user] = useAuthState(auth);
+
+  const selectedFileRef = useRef<HTMLInputElement>(null);
+  const { onSelectFile, selectedFile, setSelectedFile } = useSelectFile();
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const setCommunityStateValue = useSetRecoilState(communityState);
+
+  const onUpdateImage = async () => {
+    if (!selectedFile) return;
+    setLoading(true);
+    setUploadingImage(true);
+    try {
+      const imageRef = ref(storage, `communities/${communityData.id}/image`);
+      await uploadString(imageRef, selectedFile, "data_url");
+
+      const downloadURL = await getDownloadURL(imageRef);
+      await updateDoc(doc(firestore, "communities", communityData.id), {
+        imageURL: downloadURL,
+      });
+
+      setCommunityStateValue((prev) => ({
+        ...prev,
+        currentCommunity: {
+          ...prev.currentCommunity,
+          imageURL: downloadURL,
+        } as Community,
+      }));
+    } catch (error: any) {
+      console.log("onUpdateImage Error", error.message);
+    }
+    setLoading(false);
+    setUploadingImage(false);
+  };
 
   return (
     <Box position="sticky" top="14px">
@@ -70,7 +111,7 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
               </Text>
             )}
           </Flex>
-          <Link href={`/r/${router.query.communityId}/submit`}>
+          <Link href={`/r/${communityData.id}/submit`}>
             <Button mt={3} height="30px" width="100%">
               Create Post
             </Button>
@@ -81,8 +122,46 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
               <Stack spacing={1} fontSize="10pt">
                 <Text fontWeight={600}>Admin</Text>
                 <Flex align="center" justify="space-between">
-                  <Text>Change Image</Text>
+                  <Text
+                    color="blue.500"
+                    cursor="pointer"
+                    _hover={{ textDecoration: "underline" }}
+                    onClick={() => {
+                      selectedFileRef.current?.click();
+                    }}
+                  >
+                    Change Image
+                  </Text>
+                  <input
+                    ref={selectedFileRef}
+                    type="file"
+                    hidden
+                    onChange={onSelectFile}
+                  />
+                  {communityData.imageURL || selectedFile ? (
+                    <Image
+                      src={selectedFile || communityData.imageURL}
+                      borderRadius="full"
+                      boxSize="40px"
+                      alt="Community Image"
+                    />
+                  ) : (
+                    <Icon
+                      as={FaReddit}
+                      fontSize={40}
+                      color="brand.100"
+                      mr={2}
+                    />
+                  )}
                 </Flex>
+                {selectedFile &&
+                  (loading || uploadingImage ? (
+                    <Spinner />
+                  ) : (
+                    <Text cursor="pointer" onClick={onUpdateImage}>
+                      Save Changes
+                    </Text>
+                  ))}
               </Stack>
             </>
           )}

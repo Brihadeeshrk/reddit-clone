@@ -35,19 +35,22 @@ const OAuthButtons: React.FC = () => {
       </Button>
       <Button
         variant="oauth"
+        mb={2}
         isLoading={githubLoading}
         onClick={() => {
           signInWithGithub();
         }}
+        isDisabled
       >
         <Image
           src="/images/githubLogo.png"
           height="20px"
-          alt="GitHub Logo"
+          alt="Google Logo"
           mr={2}
         />
-        Continue With GitHub{" "}
+        Continue With Github
       </Button>
+
       {(googleError || githubError) && <Text>{error}</Text>}
     </Flex>
   );
