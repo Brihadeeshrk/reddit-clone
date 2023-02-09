@@ -1,8 +1,8 @@
 import { firestore } from "@/src/firebase/clientApp";
 import { doc, getDoc } from "firebase/firestore";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import React from "react";
-import { Community } from "../../../atoms/communitiesAtom";
+import React, { useEffect } from "react";
+import { Community, communityState } from "../../../atoms/communitiesAtom";
 import safeJsonStringigy from "safe-json-stringify";
 import CommunityNotFound from "@/src/components/Community/CommunityNotFound";
 import Header from "@/src/components/Community/Header";
@@ -10,6 +10,8 @@ import PageContent from "@/src/components/Layout/PageContent";
 import CreatePostLink from "@/src/components/Community/CreatePostLink";
 import Posts from "@/src/components/Posts/Posts";
 import useCommunityData from "@/src/hooks/useCommunityData";
+import { useSetRecoilState } from "recoil";
+import About from "@/src/components/Community/About";
 
 type CommunityPageProps = {
   communityData: Community;
@@ -21,6 +23,15 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ communityData }) => {
   const isJoined = !!communityStateValue.mySnippets.find(
     (item) => item.communityId === communityData.id
   );
+  const setCommunityStateValue = useSetRecoilState(communityState);
+
+  useEffect(() => {
+    setCommunityStateValue((prev) => ({
+      ...prev,
+      currentCommunity: communityData,
+    }));
+  }, []);
+
   if (!communityData) {
     return <CommunityNotFound />;
   }
@@ -33,7 +44,7 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ communityData }) => {
           <Posts communityData={communityData} />
         </>
         <>
-          <div>RHS</div>
+          <About communityData={communityData} />
         </>
       </PageContent>
     </>

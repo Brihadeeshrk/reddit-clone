@@ -1,4 +1,6 @@
 import { authModalState } from "@/src/atoms/authModalAtom";
+import { communityState } from "@/src/atoms/communitiesAtom";
+import About from "@/src/components/Community/About";
 import PageContent from "@/src/components/Layout/PageContent";
 import NewPostForm from "@/src/components/Posts/NewPostForm";
 import { auth } from "@/src/firebase/clientApp";
@@ -6,13 +8,14 @@ import { auth } from "@/src/firebase/clientApp";
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import React from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useSetRecoilState } from "recoil";
+import { useSetRecoilState, useRecoilValue } from "recoil";
 
 type submitProps = {};
 
 const SubmitPostPage: React.FC<submitProps> = () => {
   const [user] = useAuthState(auth);
   const setAuthModalState = useSetRecoilState(authModalState);
+  const communityStateValue = useRecoilValue(communityState);
   return (
     <>
       <PageContent>
@@ -45,7 +48,7 @@ const SubmitPostPage: React.FC<submitProps> = () => {
             </Flex>
           )}
         </>
-        <>{/* about forum */}</>
+        <>{/* <About /> */}</>
       </PageContent>
     </>
   );

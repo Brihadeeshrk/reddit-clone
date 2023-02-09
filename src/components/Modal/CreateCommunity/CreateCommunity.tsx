@@ -91,6 +91,7 @@ const CreateCommunity: React.FC<CreateCommunityProps> = ({
           }
         );
       });
+      handleClose();
     } catch (error: any) {
       console.log("handleCreateComm Error", error);
       setError(error.message);

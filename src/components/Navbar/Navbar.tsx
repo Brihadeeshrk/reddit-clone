@@ -22,13 +22,23 @@ const Navbar: React.FC = () => {
         width={{ base: "40px", md: "auto" }}
         mr={{ base: 0, md: 2 }}
       >
-        <Image src="/images/redditFace.svg" height="30px" alt="Reddit Face" />
-        <Image
-          src="/images/redditText.svg"
-          height="46px"
-          display={{ base: "none", md: "unset" }}
-          alt="Reddit Logo"
-        />
+        <Link href="/">
+          <Image
+            src="/images/redditFace.svg"
+            height="30px"
+            alt="Reddit Face"
+            mt={1}
+          />
+        </Link>
+        <Link href="/">
+          <Image
+            src="/images/redditText.svg"
+            height="46px"
+            display={{ base: "none", md: "unset" }}
+            alt="Reddit Logo"
+            mt={1}
+          />
+        </Link>
       </Flex>
       {user && <Directory />}
       <SearchInput user={user} />
