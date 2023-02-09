@@ -39,9 +39,7 @@ const SubmitPostPage: React.FC<submitProps> = () => {
               <Button
                 height="28px"
                 mt={2}
-                onClick={() =>
-                  setAuthModalState({ open: "true", view: "login" })
-                }
+                onClick={() => setAuthModalState({ open: true, view: "login" })}
               >
                 Login
               </Button>

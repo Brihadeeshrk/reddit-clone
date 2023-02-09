@@ -124,7 +124,7 @@ const SignUp: React.FC = () => {
           mb={3}
         >
           {error ||
-            FIREBASE_ERRORS[userError.message as keyof typeof FIREBASE_ERRORS]}
+            FIREBASE_ERRORS[userError?.message as keyof typeof FIREBASE_ERRORS]}
         </Text>
       )}
       <Flex fontSize="9pt" justifyContent="center">

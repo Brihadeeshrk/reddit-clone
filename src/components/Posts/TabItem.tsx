@@ -9,7 +9,7 @@ type TabItemProps = {
   key: number;
 };
 
-const TabItem: React.FC<TabItemProps> = ({
+const TabItem1: React.FC<TabItemProps> = ({
   item,
   selected,
   setSelected,
@@ -40,4 +40,4 @@ const TabItem: React.FC<TabItemProps> = ({
     </Flex>
   );
 };
-export default TabItem;
+export default TabItem1;

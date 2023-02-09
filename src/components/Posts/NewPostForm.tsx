@@ -12,7 +12,7 @@ import { BiPoll } from "react-icons/bi";
 import { BsLink45Deg, BsMic } from "react-icons/bs";
 import { IoDocumentText, IoImageOutline } from "react-icons/io5";
 import { AiFillCloseCircle } from "react-icons/ai";
-import TabItem from "./TabItem";
+import TabItem1 from "./TabItem";
 import { useState } from "react";
 import TextInputs from "./PostForm/TextInputs";
 import ImageUpload from "./PostForm/ImageUpload";
@@ -64,6 +64,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ user }) => {
     setLoading(true);
     const { communityId } = router.query;
     const newPost: Post = {
+      id: "",
       communityId: communityId as string,
       creatorId: user?.uid,
       creatorDisplayName: user.email!.split("@")[0],
@@ -111,7 +112,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ user }) => {
       <Flex width="100%">
         {formTabs.map((item, index) => (
           <>
-            <TabItem
+            <TabItem1
               key={index}
               item={item}
               selected={item.title === selectedTab}
