@@ -27,6 +27,7 @@ import React, { useState } from "react";
 import { BsFillEyeFill, BsFillPersonFill } from "react-icons/bs";
 import { HiLockClosed } from "react-icons/hi";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useRouter } from "next/router";
 
 type CreateCommunityProps = {
   open: boolean;
@@ -43,6 +44,7 @@ const CreateCommunity: React.FC<CreateCommunityProps> = ({
   const [commType, setCommType] = useState("public");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.value.length > 21) return;
@@ -92,6 +94,8 @@ const CreateCommunity: React.FC<CreateCommunityProps> = ({
         );
       });
       handleClose();
+      router.push(`/r/${commName}`);
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error: any) {
       console.log("handleCreateComm Error", error);
       setError(error.message);
