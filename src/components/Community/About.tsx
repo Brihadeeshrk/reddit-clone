@@ -23,17 +23,22 @@ import { FaReddit } from "react-icons/fa";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc } from "firebase/firestore";
 import { useSetRecoilState } from "recoil";
+import useSelectBannerPic from "@/src/hooks/useSelectBannerPic";
 
 type AboutProps = {
   communityData: Community;
 };
 
 const About: React.FC<AboutProps> = ({ communityData }) => {
-  const router = useRouter();
   const [user] = useAuthState(auth);
 
   const selectedFileRef = useRef<HTMLInputElement>(null);
+  const selectedBannerRef = useRef<HTMLInputElement>(null);
+
   const { onSelectFile, selectedFile, setSelectedFile } = useSelectFile();
+  const { onSelectBannerPic, selectedBannerPic, setSelectedBannerPic } =
+    useSelectBannerPic();
+
   const [uploadingImage, setUploadingImage] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -61,6 +66,33 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
       }));
     } catch (error: any) {
       console.log("onUpdateImage Error", error.message);
+    }
+    setLoading(false);
+    setUploadingImage(false);
+  };
+
+  const onUpdateBanner = async () => {
+    if (!selectedBannerPic) return;
+    setLoading(true);
+    setUploadingImage(true);
+    try {
+      const imageRef = ref(storage, `communities/${communityData.id}/banner`);
+      await uploadString(imageRef, selectedBannerPic, "data_url");
+
+      const downloadURL = await getDownloadURL(imageRef);
+      await updateDoc(doc(firestore, "communities", communityData.id), {
+        bannerURL: downloadURL,
+      });
+
+      setCommunityStateValue((prev) => ({
+        ...prev,
+        currentCommunity: {
+          ...prev.currentCommunity,
+          bannerURL: downloadURL,
+        } as Community,
+      }));
+    } catch (error: any) {
+      console.log("onUpdateBanner Error", error.message);
     }
     setLoading(false);
     setUploadingImage(false);
@@ -159,6 +191,47 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
                     <Spinner />
                   ) : (
                     <Text cursor="pointer" onClick={onUpdateImage}>
+                      Save Changes
+                    </Text>
+                  ))}
+                <Divider />
+                <Flex align="center" justify="space-between">
+                  <Text
+                    color="blue.500"
+                    cursor="pointer"
+                    _hover={{ textDecoration: "underline" }}
+                    onClick={() => {
+                      selectedBannerRef.current?.click();
+                    }}
+                  >
+                    Change Banner
+                  </Text>
+                  <input
+                    ref={selectedBannerRef}
+                    type="file"
+                    hidden
+                    onChange={onSelectBannerPic}
+                  />
+                  {communityData.bannerURL || selectedBannerPic ? (
+                    <Image
+                      src={selectedBannerPic || communityData.bannerURL}
+                      boxSize="40px"
+                      alt="Banner Image"
+                    />
+                  ) : (
+                    <Icon
+                      as={FaReddit}
+                      fontSize={40}
+                      color="brand.100"
+                      mr={2}
+                    />
+                  )}
+                </Flex>
+                {selectedBannerPic &&
+                  (loading || uploadingImage ? (
+                    <Spinner />
+                  ) : (
+                    <Text cursor="pointer" onClick={onUpdateBanner}>
                       Save Changes
                     </Text>
                   ))}

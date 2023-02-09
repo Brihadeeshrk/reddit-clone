@@ -7,13 +7,15 @@ export interface Community {
     numberOfMembers: number,
     privacyType: 'public' | 'restricted' | 'private',
     createdAt?: Timestamp,
-    imageURL?: string
+    imageURL?: string,
+    bannerURL? : string
 }
 
 export interface CommunitySnippet {
     communityId: string,
     isModerator?: boolean,
-    imageURL?: string
+    imageURL?: string,
+    bannerURL?: string
 }
 
 interface CommunityState {
