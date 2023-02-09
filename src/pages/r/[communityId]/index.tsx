@@ -8,12 +8,19 @@ import CommunityNotFound from "@/src/components/Community/CommunityNotFound";
 import Header from "@/src/components/Community/Header";
 import PageContent from "@/src/components/Layout/PageContent";
 import CreatePostLink from "@/src/components/Community/CreatePostLink";
+import Posts from "@/src/components/Posts/Posts";
+import useCommunityData from "@/src/hooks/useCommunityData";
 
 type CommunityPageProps = {
   communityData: Community;
 };
 
 const CommunityPage: React.FC<CommunityPageProps> = ({ communityData }) => {
+  const { communityStateValue, onJoinOrLeaveCommunity, loading } =
+    useCommunityData();
+  const isJoined = !!communityStateValue.mySnippets.find(
+    (item) => item.communityId === communityData.id
+  );
   if (!communityData) {
     return <CommunityNotFound />;
   }
@@ -22,7 +29,8 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ communityData }) => {
       <Header communityData={communityData} />
       <PageContent>
         <>
-          <CreatePostLink />
+          {isJoined && <CreatePostLink />}
+          <Posts communityData={communityData} />
         </>
         <>
           <div>RHS</div>
