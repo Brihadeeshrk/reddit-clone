@@ -94,8 +94,11 @@ const CreateCommunity: React.FC<CreateCommunityProps> = ({
         );
       });
       handleClose();
-      router.push(`/r/${commName}`);
-      setTimeout(() => window.location.reload(), 1000);
+      if (router.pathname === "/") router.push(`/r/${commName}`);
+      else {
+        router.push(`/r/${commName}`);
+        setTimeout(() => window.location.reload(), 1000);
+      }
     } catch (error: any) {
       console.log("handleCreateComm Error", error);
       setError(error.message);
