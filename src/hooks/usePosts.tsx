@@ -1,15 +1,24 @@
-import React from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import React, { useEffect } from "react";
+import { useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
 import { Post, PostVote, postState } from "../atoms/postAtom";
 import { useState } from "react";
 import { deleteObject, ref } from "firebase/storage";
 import { auth, firestore, storage } from "../firebase/clientApp";
-import { deleteDoc, doc, writeBatch, collection } from "firebase/firestore";
+import {
+  deleteDoc,
+  doc,
+  writeBatch,
+  collection,
+  query,
+} from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { authModalState } from "../atoms/authModalAtom";
+import { where, getDocs } from "firebase/firestore";
+import { communityState } from "../atoms/communitiesAtom";
 
 const usePosts = () => {
   const [postStateValue, setPostStateValue] = useRecoilState(postState);
+  const currentCommunity = useRecoilValue(communityState).currentCommunity;
   const [error, setError] = useState("");
   const [user] = useAuthState(auth);
 
@@ -139,6 +148,29 @@ const usePosts = () => {
       return false;
     }
   };
+
+  const getCommunityPostVotes = async (communityId: string) => {
+    const postVotesQuery = query(
+      collection(firestore, "users", `${user?.uid}/postVotes`),
+      where("communityId", "==", communityId)
+    );
+
+    const postVoteDocs = await getDocs(postVotesQuery);
+    const postVotes = postVoteDocs.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    setPostStateValue((prev) => ({
+      ...prev,
+      postVotes: postVotes as PostVote[],
+    }));
+  };
+
+  useEffect(() => {
+    if (!user || !currentCommunity.id) return;
+    getCommunityPostVotes(currentCommunity.id);
+  }, [user, currentCommunity]);
 
   return {
     postStateValue,

@@ -31,7 +31,7 @@ type PostItemProps = {
   post: Post;
   userIsCreator: boolean;
   key: number;
-  userVoteValue?: number;
+  userVoteValue: number;
   onVote: (post: Post, vote: number, communityId: string) => void;
   onSelectPost: () => void;
   onDeletePost: (post: Post) => Promise<boolean>;
